@@ -1,0 +1,34 @@
+/*list items by price from lowest to highest*/
+SELECT price, item_name
+FROM superstore
+ORDER BY price;
+
+/*What is the average price of a product from this store? */
+SELECT AVG(price)
+FROM superstore;
+
+/*What is the average price of an item in the Kitchen Supplies
+category ?*/
+SELECT AVG(price), category
+FROM superstore
+WHERE category='Kitchen Supplies';
+
+/*What is the highest rated item in the store ?*/
+SELECT MAX(average_rating), item_name
+FROM superstore;
+
+/*List the categories of products from highest to lowest average rating*/
+SELECT MIN(average_rating), category
+FROM superstore
+GROUP BY category
+ORDER BY MIN(average_rating) desc;
+
+/*How many cutlery sets are in stock?*/
+SELECT stock_quantity, item_name
+FROM superstore
+WHERE item_name='Cutlery Set';
+
+/*Which item has the lowest number of units in stock ? */
+SELECT MIN(stock_quantity), item_name
+FROM superstore;
+
