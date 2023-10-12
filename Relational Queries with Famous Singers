@@ -1,0 +1,111 @@
+/* I have created four example tables with data sets that are related to eachother. The SQL code below demonstrates competency in relational queries, JOINS, and logical problem solving when considering multiple sets of data*/
+
+/* Table Singers of my favorite singers 
+containing name, age, genre, networth in millions*/
+CREATE TABLE favorite_singers (
+name TEXT,
+age INTEGER,
+genre TEXT,
+networth REAL
+);
+INSERT INTO favorite_singers(name, age, genre, networth)
+VALUES
+    ("Barbra Streisand",81,"Musical Theatre",400),
+    ("Taylor Swift", 33, "Pop", 740),
+    ("Bruno Mars", 38, "R&B",175),
+    ("Ed Sheeran", 32, "Pop",200),
+    ("Kendrick Lamar", 38, "Rap",175),
+    ("Harry Styles",29,"Pop", 120),
+    ("Clairo", 25, "Pop",3),
+    ("Young Miko", 24, "Rap", 2);
+
+/*Table Grammys containing famous singers and number of Grammy Awards won*/
+CREATE TABLE grammys (
+winner TEXT,
+award TEXT
+);
+INSERT INTO grammys(winner, award)
+VALUES
+    ("Barbra Streisand","Album of the Year"),
+    ("Taylor Swift","Best Pop Vocal Album"),
+    ("Taylor Swift", "Album of the Year"),
+    ("Bruno Mars", "Best R&B Song"),
+    ("Ed Sheeran", "Best Pop Vocal Performance"),
+    ("Kendrick Lamar", "Best Rap Song"),
+    ("Kendrick Lamar", "Best Rap Album"),
+    ("Taylor Swift", "Best Pop Song"),
+    ("Harry Styles", "Album of the Year");
+    
+
+/*Table Genres containing top artist, number of streams (billions) , popularity score 1-10*/
+CREATE TABLE genres (
+name TEXT,
+top_artist TEXT,
+streams INTEGER,
+popularity_score REAL
+);
+INSERT INTO genres(name, top_artist, streams, popularity_score)
+VALUES
+    ("Pop", "Taylor Swift", 987, 9.7),
+    ("Rap", "Drake", 980, 9.5),
+    ("Country","Morgan Wallen", 900, 8.9),
+    ("Reggaeton","Bad Bunny", 912, 9.1),
+    ("Classical", "Bach", 132, 3.1),
+    ("EDM", "David Guetta", 675, 7.3),
+    ("R&B","SZA", 768, 7.8),
+    ("Musical Theatre","Lea Michele",89,2.7);
+    
+/*Table Hot 100 containing song title, length, singer, ranking*/
+CREATE TABLE hot100 (
+title TEXT,
+length REAL,
+singer TEXT,
+ranking INTEGER
+);
+INSERT INTO hot100(title,length,singer,ranking)
+VALUES
+    ("Snooze",3.54,"SZA",1),
+    ("Cruel Summer",3.23,"Taylor Swift",2),
+    ("Last Night",4.11,"Morgan Wallen",3),
+    ("Vampire",3.45,"Olivia Rodrigo",4),
+    ("Flowers",2.54,"Miley Cyrus",7),
+    ("Kiwi",3.42,"Harry Styles",26),
+    ("Money Trees",5.28,"Kendrick Lamar",43),
+    ("Moscow Mule",4.37,"Bad Bunny",18);
+    
+    
+/* Output a table showing the networth (ordered highest to lowest) of my favorite singers beside the number of grammys won for each signer in order to compare the correlation between the two*/
+SELECT favorite_singers.name, favorite_singers.networth, COUNT(grammys.winner) as "grammy wins"
+FROM favorite_singers
+LEFT JOIN grammys ON favorite_singers.name=grammys.winner
+GROUP BY favorite_singers.name
+ORDER BY favorite_singers.networth desc;
+
+
+/*
+Output a table lisiting each genre and the number of grammy wins within each genre for my favorite singers*/
+SELECT genres.name as genre, COUNT(grammys.winner) as "grammy wins"
+FROM genres
+LEFT JOIN favorite_singers ON favorite_singers.genre=genres.name
+LEFT JOIN grammys ON grammys.winner=favorite_singers.name
+GROUP BY genres.name;
+
+
+
+/*Output a table listing all my favorite singers, yes/no if they have a song in the hot 100, yes/no if they are the top artist in their genre*/
+SELECT favorite_singers.name, 
+CASE WHEN hot100.title IS NULL THEN "no" ELSE "yes" 
+END AS "has hot 100 song ?",
+CASE WHEN genres.top_artist IS NULL THEN "no" ELSE "yes"
+END AS "is top artist in genre?"
+FROM favorite_singers
+LEFT JOIN hot100 ON favorite_singers.name=hot100.singer
+LEFT JOIN genres ON favorite_singers.name=genres.top_artist;
+
+
+/* show only the names  and rankingsof songs in the hot 100 sung by one of my favorite artists */
+SELECT hot100.title, hot100.ranking as "ranking out of 100"
+FROM hot100
+JOIN favorite_singers ON favorite_singers.name=hot100.singer
+
+
