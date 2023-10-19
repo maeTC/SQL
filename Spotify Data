@@ -1,0 +1,51 @@
+/* Spotify Database -> 
+this one sucks incomplete */
+
+SELECT *
+FROM BIT_DB.Spotifydata;
+
+/*Who are the top 10 artists based on popularity? */
+SELECT artist_name
+FROM BIT_DB.Spotifydata
+ORDER BY popularity desc
+LIMIT 10;
+
+/*What artist released the longest song? */
+SELECT artist_name
+FROM BIT_DB.Spotifydata
+ORDER BY duration_ms desc
+LIMIT 1;
+
+/*What's the average danceability for the 10 most popular songs?*/
+SELECT AVG(danceability)
+FROM
+(SELECT danceability
+FROM Spotifydata
+ORDER BY popularity desc
+LIMIT 10);
+
+
+
+/* What is the average popularity of the 5 most energetic songs and what is the average popularity of the 5 least energetic songs ?*/
+SELECT AVG(popularity) most_energetic_popularity,
+    (SELECT AVG(popularity)
+     FROM BIT_DB.Spotifydata
+     ORDER BY energy
+     LIMIT 5) least_energetic_popularity
+FROM BIT_DB.Spotifydata
+ORDER BY energy desc
+LIMIT 5;
+
+/*Now you'll use SQLite Studio to write your own CTE with the Spotify data table you've already created.*/
+WITH popularity_average_CTE AS (
+SELECT s.artist_name,
+AVG(s.popularity) AS average_popularity
+FROM SpotifyData s 
+GROUP BY s.artist_name
+)
+ 
+SELECT  artist_name,
+        average_popularity,
+        'Top Star' AS tag
+FROM popularity_average_CTE
+WHERE average_popularity>=90;
