@@ -1,0 +1,74 @@
+/*Queries using Window Functions, CTEs, concatenation, JOINS, grouping
+Download database here -> https://cdn.fs.teachablecdn.com/dRmwOLQsS22FVFbXfh3x */
+
+
+/*Rank the Genres by popularity based on the number of tracks purchased*/
+WITH tracks_sold_cte AS
+(SELECT DISTINCT tracks.Name as name, SUM(Quantity) OVER (PARTITION BY tracks.Name) as times_purchased, tracks.GenreId as genre_id
+FROM tracks
+JOIN invoice_items ON invoice_items.TrackId = tracks.TrackId
+JOIN genres ON genres.GenreId = tracks.GenreId )
+
+SELECT genres.Name as "Genre", SUM(cte.times_purchased) as "Tracks Purchased"
+FROM genres
+JOIN tracks_sold_cte cte ON cte.genre_id = genres.GenreId
+GROUP BY genres.Name
+ORDER BY (SUM(cte.times_purchased)) desc;
+
+
+/*Show the total sales made by each sales agent in descending order*/
+SELECT (employees.LastName || ',  ' || employees.FirstName) as "Sales Agent", ROUND(SUM(total), 2) as "Sales"
+FROM customers
+JOIN invoices ON invoices.CustomerId = customers.CustomerId
+JOIN employees ON EmployeeId = SupportRepId
+GROUP BY SupportRepId
+ORDER BY "Sales" desc;
+
+/*Show Customers (their full names, customer ID, and country) who are not in the US. Order alphabetically by last name*/
+SELECT (LastName || ',  ' || FirstName) as Name, CustomerId, Country
+FROM customers
+WHERE COUNTRY <> "USA"
+ORDER BY Name;
+
+/*Show Customers (their full names, customer ID, and country) who are not in the US. Order alphabetically by last name*/
+SELECT (LastName || ',  ' || FirstName) as Name, CustomerId, Country
+FROM customers
+WHERE COUNTRY <> "USA"
+ORDER BY Name desc;
+
+/*Find the Invoices of customers who are from Brazil. The resulting table should show the 
+ customer's full name, Invoice ID, Date of the invoice, and billing country. */
+ SELECT InvoiceId, (LastName || ',  ' || FirstName) as "Name", DATE(InvoiceDate) as "Date", BillingCountry
+ FROM invoices
+ LEFT JOIN customers ON invoices.CustomerId = customers.CustomerId
+ WHERE BillingCountry = 'Brazil';
+ 
+/*Show the Employees who work in Sales along with their Title and ID*/
+SELECT (LastName || ',  ' || FirstName) as "Employee", Title, EmployeeId
+FROM employees
+WHERE Title like 'Sales%';
+
+/*What are the total sales for 2009?*/
+SELECT ROUND(SUM(total), 2) as "2009 Sales"
+FROM invoices
+WHERE InvoiceDate like '%2009%';
+
+/* use IN, NOT IN, HAVING, aggregations, CTE, Window function */
+
+/*Show the full name of each sales agent, their average total per sale, and total numbeer of sales ? */
+SELECT (employees.LastName || ',  ' || employees.FirstName) as "Sales Representative", AVG(total), COUNT(InvoiceId)
+FROM customers
+JOIN invoices ON invoices.CustomerId = customers.CustomerId
+JOIN employees ON EmployeeId = SupportRepId
+GROUP BY SupportRepId;
+
+
+/* List each artist and the number of times that a song of theirs appears on any existing playlists , */
+SELECT artists.Name as "Artist", COUNT(tracks.TrackId) "Playlist Appearances"
+FROM artists
+LEFT JOIN albums ON artists.ArtistID = albums.ArtistId
+LEFT JOIN tracks ON tracks.AlbumId = albums.AlbumId
+JOIN playlist_track ON playlist_track.TrackId = tracks.TrackId
+GROUP BY artists.Name;
+
+
